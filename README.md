@@ -5,6 +5,8 @@
 
 * [Kotlin Coroutines](https://kotlinlang.org/docs/reference/coroutines-overview.html) 
 
+* [Room](https://developer.android.com/jetpack/androidx/releases/room) 
+
 * [Dagger 2](https://dagger.dev/users-guide) 
 
 * [Retrofit 2](https://square.github.io/retrofit/) 
