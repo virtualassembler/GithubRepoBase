@@ -16,7 +16,7 @@ The application uses Clean Architecture based on MVVM and Repository patterns. A
 
 * [Kotlin Coroutines](https://kotlinlang.org/docs/reference/coroutines-overview.html) 
 
-* [Material](https://material.io/) 
+* [Material-io](https://material.io/) 
 
 * [Room](https://developer.android.com/jetpack/androidx/releases/room) 
 
