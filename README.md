@@ -1,8 +1,11 @@
 # GithubRepo!
+This application is written in kotlin also gradle is written in kotlin-dsl. 
 
 The application uses Clean Architecture based on MVVM and Repository patterns. Also Repository, ViewModel, Room and Service testes is written. Automatically codeCoverageReport task will added when app is builded. I used jacoco library for creating code coverage report because android studio is not calculating it when gradle is written in kotlin-dsl.
 
-This application is written in kotlin also gradle is written in kotlin-dsl. 
+![Image of Test Result](https://github.com/gkaradagan/GithubRepo/blob/master/art/testresult.png)
+
+
 ### Libraries Used
 
 * [Kotlin Gradle DSL](https://docs.gradle.org/current/userguide/kotlin_dsl.html) 
