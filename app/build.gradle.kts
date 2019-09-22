@@ -33,6 +33,15 @@ android {
         }
     }
 
+    signingConfigs {
+        getByName("debug") {
+            storeFile = rootProject.file("debug.jks")
+            storePassword = "121212"
+            keyAlias = "GithubRepo"
+            keyPassword = "121212"
+        }
+    }
+
     buildTypes {
         getByName(BuildType.RELEASE) {
             isMinifyEnabled = BuildTypeRelease.isMinifyEnabled
@@ -42,6 +51,7 @@ android {
         getByName(BuildType.DEBUG) {
             isMinifyEnabled = BuildTypeDebug.isMinifyEnabled
             isTestCoverageEnabled = true
+            signingConfig = signingConfigs.getByName("debug")
         }
 
         compileOptions {
