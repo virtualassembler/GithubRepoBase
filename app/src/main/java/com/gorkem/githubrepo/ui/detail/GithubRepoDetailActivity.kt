@@ -18,16 +18,15 @@ class GithubRepoDetailActivity :
     @Inject
     lateinit var viewModel: GithubRepoDetailViewModel
 
+    //Handle LandScape/Potrait
     private var saveRepo: GithubRepoResponse? by instanceState()
-
-    private var defaultFavourite: Boolean = false
-
+    private var saveDefaultFavourite: Boolean? by instanceState()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setSupportActionBar(binding.toolbar)
 
-        if (savedInstanceState == null || saveRepo == null) {//Handle landscape/potrait!
+        if (savedInstanceState == null || saveRepo == null) {
             saveRepo = intent.extras?.getParcelable(REPO)
         }
 
@@ -35,8 +34,9 @@ class GithubRepoDetailActivity :
 
         saveRepo.whenNonNull {
             supportActionBar!!.title = saveRepo!!.name
-
-            defaultFavourite = saveRepo!!.favourite
+            if (savedInstanceState == null || saveRepo == null) {
+                saveDefaultFavourite = saveRepo!!.favourite
+            }
             binding.item = saveRepo!!
 
             binding.ivStar.setOnClickListener {
@@ -47,6 +47,7 @@ class GithubRepoDetailActivity :
                 }
                 saveRepo!!.favourite = !(saveRepo!!.favourite)
                 binding.item = saveRepo!!
+                binding.executePendingBindings()
             }
         }
         binding.toolbar.setNavigationOnClickListener { onBackPressed() }
@@ -54,7 +55,7 @@ class GithubRepoDetailActivity :
     }
 
     override fun onBackPressed() {
-        if (defaultFavourite != saveRepo?.favourite) {
+        if (saveDefaultFavourite != null && saveDefaultFavourite != saveRepo?.favourite) {
             val returnIntent = Intent()
             returnIntent.putExtra(REPO, saveRepo)
             setResult(Activity.RESULT_OK, returnIntent)
