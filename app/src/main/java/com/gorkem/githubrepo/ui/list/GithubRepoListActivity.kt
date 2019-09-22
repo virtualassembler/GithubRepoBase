@@ -8,10 +8,7 @@ import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gorkem.githubrepo.R
-import com.gorkem.githubrepo.base.BaseActivity
-import com.gorkem.githubrepo.base.SlientLoadingResourceImpl
-import com.gorkem.githubrepo.base.launchActivity
-import com.gorkem.githubrepo.base.whenNonNull
+import com.gorkem.githubrepo.base.*
 import com.gorkem.githubrepo.data.model.GithubRepoResponse
 import com.gorkem.githubrepo.data.model.ServiceResult
 import com.gorkem.githubrepo.databinding.ActivityGithubRepoListBinding
@@ -49,6 +46,7 @@ class GithubRepoListActivity :
         binding.btnSearch.setOnClickListener {
             binding.etUserName.text.whenNonNull {
                 requestRepoList(this.toString())
+                hideKeyboard()
             }
         }
 
