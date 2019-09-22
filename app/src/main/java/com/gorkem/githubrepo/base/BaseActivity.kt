@@ -46,11 +46,12 @@ abstract class BaseActivity<DB : ViewDataBinding, V : BaseViewModel> : AppCompat
     private val savable = Bundle()
 
     protected fun <T> instanceState() = InstanceStateProvider.Nullable<T>(savable)
-    protected fun <T> instanceState(defaultValue: T) = InstanceStateProvider.NotNull(savable, defaultValue)
+    protected fun <T> instanceState(defaultValue: T) =
+        InstanceStateProvider.NotNull(savable, defaultValue)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if(savedInstanceState != null) {
+        if (savedInstanceState != null) {
             savable.putAll(savedInstanceState.getBundle("_state"))
         }
         super.onCreate(savedInstanceState)
@@ -88,6 +89,7 @@ abstract class BaseActivity<DB : ViewDataBinding, V : BaseViewModel> : AppCompat
                 .setMessage(message)
                 .setPositiveButton(R.string.general_ok) { dialogInterface, _ ->
                     dialogInterface.dismiss()
+                    simpleDialog = null;
                 }
                 .setCancelable(true)
                 .create()
