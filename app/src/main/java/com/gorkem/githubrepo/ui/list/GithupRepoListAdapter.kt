@@ -117,6 +117,7 @@ class GithupRepoListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
         fun bind(data: GithubRepoResponse) {
             binding.item = data
+            binding.executePendingBindings()
         }
     }
 }
