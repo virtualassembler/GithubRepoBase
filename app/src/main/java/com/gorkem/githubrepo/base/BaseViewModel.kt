@@ -4,6 +4,7 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.gorkem.githubrepo.data.model.GithubRepoResponse
 import com.gorkem.githubrepo.data.model.ServiceResult
 import kotlinx.coroutines.*
 
@@ -29,29 +30,30 @@ open class BaseViewModel : ViewModel(), LifecycleObserver {
         viewModelJob.cancel()
     }
 
-    protected fun <T> call(networkCall: suspend () -> ServiceResult<T>): LiveData<ServiceResult<T>> {
-        val responseLiveData: MutableLiveData<ServiceResult<T>> = MutableLiveData()
+    protected fun <T> call(
+        liveData: MutableLiveData<ServiceResult<T>>,
+        networkCall: suspend () -> ServiceResult<T>
+    ) {
         uiScope.launch {
-            responseLiveData.value = ServiceResult.loading()
+            liveData.value = ServiceResult.loading()
             val task = withContext(Dispatchers.Main) {
                 // background thread
                 networkCall.invoke()
             }
-            responseLiveData.value = task
+            liveData.value = task
         }
-        return responseLiveData
     }
 
-    protected fun <T> callDBAndReturn(dbCall: suspend () -> T): LiveData<T> {
-        val responseLiveData: MutableLiveData<T> = MutableLiveData()
+    protected fun <T> callDBAndReturn(
+        liveData: MutableLiveData<T>,
+        dbCall: suspend () -> T) {
         uiScope.launch {
             val task = withContext(Dispatchers.Main) {
                 // background thread
                 dbCall.invoke()
             }
-            responseLiveData.value = task
+            liveData.value = task
         }
-        return responseLiveData
     }
 
     protected fun doBackground(dbCall: suspend () -> Unit) {

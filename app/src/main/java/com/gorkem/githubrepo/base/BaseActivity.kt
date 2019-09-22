@@ -7,11 +7,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.observe
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.gorkem.githubrepo.R
 import com.gorkem.githubrepo.base.ui.LoadingDialog
+import com.gorkem.githubrepo.data.model.GithubRepoResponse
 import com.gorkem.githubrepo.data.model.ServiceResult
 import com.gorkem.githubrepo.di.Injectable
 import com.gorkem.githubrepo.util.ConnectivityUtil
@@ -22,8 +23,8 @@ import javax.inject.Inject
 abstract class BaseActivity<DB : ViewDataBinding, V : BaseViewModel> : AppCompatActivity(),
     Injectable, HasSupportFragmentInjector {
 
-    var loadingDialog: LoadingDialog? = null
-    var simpleDialog: AlertDialog? = null
+    private var loadingDialog: LoadingDialog? = null
+    private var simpleDialog: AlertDialog? = null
 
     @Inject
     lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
@@ -42,15 +43,23 @@ abstract class BaseActivity<DB : ViewDataBinding, V : BaseViewModel> : AppCompat
      */
     abstract val vm: V
 
+    private val savable = Bundle()
+
+    protected fun <T> instanceState() = InstanceStateProvider.Nullable<T>(savable)
+    protected fun <T> instanceState(defaultValue: T) = InstanceStateProvider.NotNull(savable, defaultValue)
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if(savedInstanceState != null) {
+            savable.putAll(savedInstanceState.getBundle("_state"))
+        }
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, layoutRes)
-        getLifecycle().addObserver(vm)
+        lifecycle.addObserver(vm)
     }
 
     override fun onDestroy() {
-        getLifecycle().removeObserver(vm)
+        lifecycle.removeObserver(vm)
         onHideLoading()
         hideSimpleDialog()
         super.onDestroy()
@@ -77,7 +86,7 @@ abstract class BaseActivity<DB : ViewDataBinding, V : BaseViewModel> : AppCompat
         simpleDialog.whenNull {
             simpleDialog = MaterialAlertDialogBuilder(this@BaseActivity)
                 .setMessage(message)
-                .setPositiveButton(R.string.general_ok) { dialogInterface, i ->
+                .setPositiveButton(R.string.general_ok) { dialogInterface, _ ->
                     dialogInterface.dismiss()
                 }
                 .setCancelable(true)
@@ -87,11 +96,19 @@ abstract class BaseActivity<DB : ViewDataBinding, V : BaseViewModel> : AppCompat
         simpleDialog!!.show()
     }
 
-    fun <T> call(call: LiveData<ServiceResult<T>>, listen: LoadingResourceImpl<T>) {
+    fun listen(
+        livedata: MutableLiveData<ServiceResult<List<GithubRepoResponse>>>,
+        listen: SlientLoadingResourceImpl<List<GithubRepoResponse>>
+    ) {
         if (!ConnectivityUtil.isInternetAvailable(this)) {
             onError(getString(R.string.not_connected_to_internet))
         } else {
-            call.observe(this) { listen.onChanged(it) }
+            livedata.observe(this) { listen.onChanged(it) }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBundle("_state", savable)
+        super.onSaveInstanceState(outState)
     }
 }

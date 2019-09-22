@@ -66,9 +66,9 @@ class GithubRepoListViewModelTest {
                 )
 
                 Assert.assertNotNull(request)
-                Assert.assertNotNull(LiveDataTestUtil.getValue(request))
+                Assert.assertNotNull(LiveDataTestUtil.getValue(viewModel.repoList))
                 Assert.assertThat(
-                    LiveDataTestUtil.getValue(request).status,
+                    LiveDataTestUtil.getValue(viewModel.repoList).status,
                     CoreMatchers.`is`(ServiceResult.Status.SUCCESS)
                 )
             }
@@ -85,10 +85,10 @@ class GithubRepoListViewModelTest {
                 val request = viewModel.getRepoList(anyString())
 
                 Assert.assertNotNull(request)
-                val value = LiveDataTestUtil.getValue(request)
+                val value = LiveDataTestUtil.getValue(viewModel.repoList)
                 Assert.assertNotNull(value)
                 Assert.assertThat(
-                    LiveDataTestUtil.getValue(request).status,
+                    LiveDataTestUtil.getValue(viewModel.repoList).status,
                     CoreMatchers.`is`(ServiceResult.Status.ERROR)
                 )
             }

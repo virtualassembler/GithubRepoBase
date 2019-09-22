@@ -1,6 +1,5 @@
 package com.gorkem.githubrepo.data.repository
 
-import androidx.lifecycle.LiveData
 import com.gorkem.githubrepo.base.BaseRepository
 import com.gorkem.githubrepo.base.whenNonNull
 import com.gorkem.githubrepo.data.api.GithubService

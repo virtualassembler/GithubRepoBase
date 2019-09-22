@@ -3,6 +3,7 @@ package com.gorkem.githubrepo.ui.list
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,6 +13,7 @@ import com.gorkem.githubrepo.base.SlientLoadingResourceImpl
 import com.gorkem.githubrepo.base.launchActivity
 import com.gorkem.githubrepo.base.whenNonNull
 import com.gorkem.githubrepo.data.model.GithubRepoResponse
+import com.gorkem.githubrepo.data.model.ServiceResult
 import com.gorkem.githubrepo.databinding.ActivityGithubRepoListBinding
 import com.gorkem.githubrepo.ui.detail.GithubRepoDetailActivity
 import com.gorkem.githubrepo.ui.detail.GithubRepoDetailActivity.Companion.REPO
@@ -25,6 +27,8 @@ class GithubRepoListActivity :
 
     @Inject
     lateinit var viewModel: GithubRepoListViewModel
+
+    private var savedList: List<GithubRepoResponse>? by instanceState()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,33 +51,41 @@ class GithubRepoListActivity :
                 requestRepoList(this.toString())
             }
         }
+
+        if (savedInstanceState != null && savedList != null)
+            adapter.addItems(savedList!!)
+
+        listen(viewModel.repoList,
+            object : SlientLoadingResourceImpl<List<GithubRepoResponse>>(this) {
+                override fun onSuccess(data: List<GithubRepoResponse>?) {
+                    savedList = data
+                    adapter.addItems(data!!)
+                }
+
+                override fun onShowLoading() {
+                    adapter.showLoading()
+                }
+
+                override fun onHideLoading(isSucces: Boolean) {
+                    if (!isSucces) {
+                        adapter.clearItems()
+                        adapter.notifyDataSetChanged()
+                    }
+                }
+
+                override fun onError(message: String?) {
+                    adapter.clearItems()
+                    adapter.notifyDataSetChanged()
+                    super.onError(message)
+                }
+            })
+
+
     }
 
     private fun requestRepoList(user: String) {
         if (user.isNotEmpty()) {
-            call(viewModel.getRepoList(user),
-                object : SlientLoadingResourceImpl<List<GithubRepoResponse>>(this) {
-                    override fun onSuccess(data: List<GithubRepoResponse>?) {
-                        adapter.addItems(data!!)
-                    }
-
-                    override fun onShowLoading() {
-                        adapter.showLoading()
-                    }
-
-                    override fun onHideLoading(isSucces: Boolean) {
-                        if (!isSucces) {
-                            adapter.clearItems()
-                            adapter.notifyDataSetChanged()
-                        }
-                    }
-
-                    override fun onError(message: String?) {
-                        adapter.clearItems()
-                        adapter.notifyDataSetChanged()
-                        super.onError(message)
-                    }
-                })
+            viewModel.getRepoList(user)
         } else {
             onError(getString(R.string.search_repo_empty))
         }
@@ -92,13 +104,12 @@ class GithubRepoListActivity :
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-
     override val layoutRes: Int
         get() = R.layout.activity_github_repo_list
     override val vm: GithubRepoListViewModel
         get() = viewModel
 
     companion object {
-        public const val DETAIL_REQUEST = 1001
+        const val DETAIL_REQUEST = 1001
     }
 }
