@@ -17,6 +17,7 @@ open class InstanceStateProvider<T>(private val savable: Bundle) {
             return
         }
         when (value) {
+            is Boolean -> savable.putBoolean(property.name, value)
             is Int -> savable.putInt(property.name, value)
             is Long -> savable.putLong(property.name, value)
             is Float -> savable.putFloat(property.name, value)

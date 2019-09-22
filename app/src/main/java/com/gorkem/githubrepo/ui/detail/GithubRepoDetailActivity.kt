@@ -18,29 +18,35 @@ class GithubRepoDetailActivity :
     @Inject
     lateinit var viewModel: GithubRepoDetailViewModel
 
-    private var repo: GithubRepoResponse? = null
+    private var saveRepo: GithubRepoResponse? by instanceState()
 
     private var defaultFavourite: Boolean = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setSupportActionBar(binding.toolbar)
-        repo = intent.extras?.getParcelable(REPO)
+
+        if (savedInstanceState == null || saveRepo == null) {//Handle landscape/potrait!
+            saveRepo = intent.extras?.getParcelable(REPO)
+        }
+
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
-        repo.whenNonNull {
-            supportActionBar!!.title = repo!!.name
-            binding.item = repo!!
-            defaultFavourite = repo!!.favourite
+        saveRepo.whenNonNull {
+            supportActionBar!!.title = saveRepo!!.name
+
+            defaultFavourite = saveRepo!!.favourite
+            binding.item = saveRepo!!
 
             binding.ivStar.setOnClickListener {
-                if (repo!!.favourite) {
-                    viewModel.deleteFavourite(Favourite(repo!!.id))
+                if (saveRepo!!.favourite) {
+                    viewModel.deleteFavourite(Favourite(saveRepo!!.id))
                 } else {
-                    viewModel.insertFavourite(Favourite(repo!!.id))
+                    viewModel.insertFavourite(Favourite(saveRepo!!.id))
                 }
-                repo!!.favourite = !(repo!!.favourite)
-                binding.item = repo!!
+                saveRepo!!.favourite = !(saveRepo!!.favourite)
+                binding.item = saveRepo!!
             }
         }
         binding.toolbar.setNavigationOnClickListener { onBackPressed() }
@@ -48,9 +54,9 @@ class GithubRepoDetailActivity :
     }
 
     override fun onBackPressed() {
-        if (defaultFavourite != repo?.favourite) {
+        if (defaultFavourite != saveRepo?.favourite) {
             val returnIntent = Intent()
-            returnIntent.putExtra(REPO, repo)
+            returnIntent.putExtra(REPO, saveRepo)
             setResult(Activity.RESULT_OK, returnIntent)
         }
         finish()
